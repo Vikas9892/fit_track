@@ -32,7 +32,8 @@ const SignIn = () => {
           setButtonDisabled(false);
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          const errorMessage = err.response?.data?.message || err.message || "An error occurred during sign in";
+          alert(errorMessage);
           setLoading(false);
           setButtonDisabled(false);
         });
