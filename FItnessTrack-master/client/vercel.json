@@ -1,0 +1,7 @@
+{
+  "buildCommand": "react-scripts build",
+  "outputDirectory": "build",
+  "env": {
+    "REACT_APP_BACKEND_URL": "@react_app_backend_url"
+  }
+}
