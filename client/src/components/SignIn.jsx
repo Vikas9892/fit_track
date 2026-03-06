@@ -23,20 +23,23 @@ const SignIn = () => {
   const handelSignIn = async () => {
     setLoading(true);
     setButtonDisabled(true);
-    if (validateInputs()) {
-      await UserSignIn({ email, password })
-        .then((res) => {
-          dispatch(loginSuccess(res?.data));
-          alert("Login Success");
-          setLoading(false);
-          setButtonDisabled(false);
-        })
-        .catch((err) => {
-          const errorMessage = err.response?.data?.message || err.message || "An error occurred during sign in";
-          alert(errorMessage);
-          setLoading(false);
-          setButtonDisabled(false);
-        });
+    if (!validateInputs()) {
+      setLoading(false);
+      setButtonDisabled(false);
+      return;
+    }
+
+    try {
+      const res = await UserSignIn({ email, password });
+      dispatch(loginSuccess(res?.data));
+      alert("Login Success");
+    } catch (err) {
+      console.error(err);
+      const errorMessage = err.response?.data?.message || err.message || "An error occurred during sign in";
+      alert(errorMessage);
+    } finally {
+      setLoading(false);
+      setButtonDisabled(false);
     }
   };
 

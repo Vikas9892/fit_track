@@ -24,20 +24,23 @@ const SignUp = () => {
   const handelSignUp = async () => {
     setLoading(true);
     setButtonDisabled(true);
-    if (validateInputs()) {
-      await UserSignUp({ name, email, password })
-        .then((res) => {
-          dispatch(loginSuccess(res?.data));
-          alert("Account Created Success");
-          setLoading(false);
-          setButtonDisabled(false);
-        })
-        .catch((err) => {
-          const errorMessage = err.response?.data?.message || err.message || "An error occurred during sign up";
-          alert(errorMessage);
-          setLoading(false);
-          setButtonDisabled(false);
-        });
+    if (!validateInputs()) {
+      setLoading(false);
+      setButtonDisabled(false);
+      return;
+    }
+
+    try {
+      const res = await UserSignUp({ name, email, password });
+      dispatch(loginSuccess(res?.data));
+      alert("Account Created Success");
+    } catch (err) {
+      console.error(err);
+      const errorMessage = err.response?.data?.message || err.message || "An error occurred during sign up";
+      alert(errorMessage);
+    } finally {
+      setLoading(false);
+      setButtonDisabled(false);
     }
   };
 
