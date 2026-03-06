@@ -1,44 +1,32 @@
 import React from "react";
-import styled from "styled-components";
 import { BarChart } from "@mui/x-charts/BarChart";
-
-const Card = styled.div`
-  flex: 1;
-  min-width: 280px;
-  padding: 24px;
-  border: 1px solid ${({ theme }) => theme.text_primary + 20};
-  border-radius: 14px;
-  box-shadow: 1px 6px 20px 0px ${({ theme }) => theme.primary + 15};
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  @media (max-width: 600px) {
-    padding: 16px;
-  }
-`;
-const Title = styled.div`
-  font-weight: 600;
-  font-size: 16px;
-  color: ${({ theme }) => theme.primary};
-  @media (max-width: 600px) {
-    font-size: 14px;
-  }
-`;
 
 const WeeklyStatCard = ({ data }) => {
   return (
-    <Card>
-      <Title>Weekly Calories Burned</Title>
+    <div className="flex-1 min-w-[280px] p-6 bg-white border border-neutral-200 rounded-2xl shadow-md flex flex-col gap-4">
+      <h3 className="font-bold text-sm text-primary uppercase tracking-wider">Weekly Calories Burned</h3>
       {data?.totalWeeksCaloriesBurnt && (
-        <BarChart
-          xAxis={[
-            { scaleType: "band", data: data?.totalWeeksCaloriesBurnt?.weeks },
-          ]}
-          series={[{ data: data?.totalWeeksCaloriesBurnt?.caloriesBurned }]}
-          height={300}
-        />
+        <div className="w-full h-[300px]">
+          <BarChart
+            xAxis={[
+              { 
+                scaleType: "band", 
+                data: data?.totalWeeksCaloriesBurnt?.weeks || [],
+                tickLabelStyle: { fontSize: 10, fill: '#666' } 
+              },
+            ]}
+            series={[
+              { 
+                data: data?.totalWeeksCaloriesBurnt?.caloriesBurned || [],
+                color: '#5B8FB9' 
+              }
+            ]}
+            height={300}
+            margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
+          />
+        </div>
       )}
-    </Card>
+    </div>
   );
 };
 

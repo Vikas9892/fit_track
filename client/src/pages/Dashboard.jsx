@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { counts } from "../utils/data";
@@ -10,62 +9,6 @@ import AddWorkout from "../components/AddWorkout";
 import WorkoutCard from "../components/cards/WorkoutCard";
 import { addWorkout, getDashboardDetails, getWorkouts } from "../api";
 
-const Container = styled.div`
-  flex: 1;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  padding: 22px 0px;
-  overflow-y: scroll;
-`;
-const Wrapper = styled.div`
-  flex: 1;
-  max-width: 1400px;
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-  @media (max-width: 600px) {
-    gap: 12px;
-  }
-`;
-const Title = styled.div`
-  padding: 0px 16px;
-  font-size: 22px;
-  color: ${({ theme }) => theme.text_primary};
-  font-weight: 500;
-`;
-const FlexWrap = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 22px;
-  padding: 0px 16px;
-  @media (max-width: 600px) {
-    gap: 12px;
-  }
-`;
-const Section = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 0px 16px;
-  gap: 22px;
-  padding: 0px 16px;
-  @media (max-width: 600px) {
-    gap: 12px;
-  }
-`;
-const CardWrapper = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 100px;
-  @media (max-width: 600px) {
-    gap: 12px;
-  }
-`;
-
-
 const Dashboard = () => {
   const navigate = useNavigate();
   const currentUser = useSelector((state) => state.user.currentUser);
@@ -75,7 +18,8 @@ const Dashboard = () => {
   const [todaysWorkouts, setTodaysWorkouts] = useState([]);
   const [workout, setWorkout] = useState(`#Legs
 -Back Squat
--5 setsX15 reps
+-5 sets
+-15 reps 
 -30 kg
 -10 min`);
 
@@ -84,18 +28,18 @@ const Dashboard = () => {
     const token = localStorage.getItem("fittrack-app-token");
     await getDashboardDetails(token).then((res) => {
       setData(res.data);
-      console.log(res.data);
+      setLoading(false);
+    }).catch(err => {
+      console.error(err);
       setLoading(false);
     });
   };
+
   const getTodaysWorkout = async () => {
-    setLoading(true);
     const token = localStorage.getItem("fittrack-app-token");
     await getWorkouts(token, "").then((res) => {
-      setTodaysWorkouts(res?.data?.todaysWorkouts);
-      console.log(res.data);
-      setLoading(false);
-    });
+      setTodaysWorkouts(res?.data?.todaysWorkouts || []);
+    }).catch(err => console.error(err));
   };
 
   const addNewWorkout = async () => {
@@ -103,7 +47,6 @@ const Dashboard = () => {
     const token = localStorage.getItem("fittrack-app-token");
     await addWorkout(token, { workoutString: workout })
       .then((res) => {
-        // Store the last added workout category
         if (res.data.workouts && res.data.workouts.length > 0) {
           const lastCategory = res.data.workouts[res.data.workouts.length - 1].category;
           localStorage.setItem("lastWorkoutCategory", lastCategory);
@@ -112,7 +55,7 @@ const Dashboard = () => {
         getTodaysWorkout();
         setButtonLoading(false);
         setWorkout("");
-        // Navigate to tutorials page to show relevant content
+        // After adding, show the suggestions!
         navigate("/tutorials");
       })
       .catch((err) => {
@@ -121,52 +64,58 @@ const Dashboard = () => {
       });
   };
 
-  // Clear data when user changes to ensure fresh data for new user
   useEffect(() => {
-    setData(null);
-    setTodaysWorkouts([]);
-    setWorkout(`#Legs
--Back Squat
--5 setsX15 reps
--30 kg
--10 min`);
-  }, [currentUser?.id]);
+    if (currentUser) {
+      dashboardData();
+      getTodaysWorkout();
+    }
+  }, [currentUser]);
 
-  useEffect(() => {
-    dashboardData();
-    getTodaysWorkout();
-  }, [currentUser?.id]);
   return (
-    <Container>
-      <Wrapper>
-        <Title>Dashboard</Title>
-        <FlexWrap>
-          {counts.map((item) => (
-            <CountsCard item={item} data={data} />
+    <div className="flex-1 min-h-screen flex justify-center py-6 px-4 bg-neutral-50 overflow-y-auto">
+      <div className="flex-1 max-w-[1400px] flex flex-col gap-6">
+        <h1 className="text-xl md:text-2xl font-semibold text-neutral-800 px-1">Dashboard Overview</h1>
+        
+        {/* Statistics Overview */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-1">
+          {counts.map((item, index) => (
+            <CountsCard key={index} item={item} data={data} />
           ))}
-        </FlexWrap>
+        </div>
 
-        <FlexWrap>
-          <WeeklyStatCard data={data} />
-          <CategoryChart data={data} />
-          <AddWorkout
-            workout={workout}
-            setWorkout={setWorkout}
-            addNewWorkout={addNewWorkout}
-            buttonLoading={buttonLoading}
-          />
-        </FlexWrap>
+        {/* Charts & Actions */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-1">
+          <div className="lg:col-span-2 flex flex-col gap-6">
+            <WeeklyStatCard data={data} />
+            <CategoryChart data={data} />
+          </div>
+          <div className="lg:col-span-1">
+            <AddWorkout
+              workout={workout}
+              setWorkout={setWorkout}
+              addNewWorkout={addNewWorkout}
+              buttonLoading={buttonLoading}
+            />
+          </div>
+        </div>
 
-        <Section>
-          <Title>Todays Workouts</Title>
-          <CardWrapper>
-            {todaysWorkouts.map((workout) => (
-              <WorkoutCard workout={workout} />
-            ))}
-          </CardWrapper>
-        </Section>
-      </Wrapper>
-    </Container>
+        {/* Today's Workouts List */}
+        <section className="flex flex-col gap-6 pb-20 px-1">
+          <h2 className="text-lg md:text-xl font-semibold text-neutral-800">Today's Progress</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {todaysWorkouts.length > 0 ? (
+              todaysWorkouts.map((workout) => (
+                <WorkoutCard key={workout._id} workout={workout} />
+              ))
+            ) : (
+              <div className="col-span-full py-20 text-center text-neutral-400 border border-dashed border-neutral-300 rounded-xl bg-white">
+                No workouts logged today yet. Start moving!
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
+    </div>
   );
 };
 

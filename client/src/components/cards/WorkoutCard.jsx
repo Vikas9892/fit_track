@@ -1,75 +1,29 @@
 import { FitnessCenterRounded, TimelapseRounded } from "@mui/icons-material";
 import React from "react";
-import styled from "styled-components";
-
-const Card = styled.div`
-  flex: 1;
-  min-width: 250px;
-  max-width: 400px;
-  padding: 16px 18px;
-  border: 1px solid ${({ theme }) => theme.text_primary + 20};
-  border-radius: 14px;
-  box-shadow: 1px 6px 20px 0px ${({ theme }) => theme.primary + 15};
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  @media (max-width: 600px) {
-    padding: 12px 14px;
-  }
-`;
-const Category = styled.div`
-  width: fit-content;
-  font-size: 14px;
-  color: ${({ theme }) => theme.primary};
-  font-weight: 500;
-  background: ${({ theme }) => theme.primary + 20};
-  padding: 4px 10px;
-  border-radius: 8px;
-`;
-const Name = styled.div`
-  font-size: 20px;
-  color: ${({ theme }) => theme.text_primary};
-  font-weight: 600;
-`;
-const Sets = styled.div`
-  font-size: 15px;
-  color: ${({ theme }) => theme.text_secondary};
-  font-weight: 500;
-  display: flex;
-  gap: 6px;
-`;
-const Flex = styled.div`
-  display: flex;
-  gap: 16px;
-`;
-const Details = styled.div`
-  font-size: 15px;
-  color: ${({ theme }) => theme.text_primary};
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-`;
 
 const WorkoutCard = ({ workout }) => {
   return (
-    <Card>
-      <Category>#{workout?.category}</Category>
-      <Name>{workout?.workoutName}</Name>
-      <Sets>
-        Count: {workout?.sets} sets X {workout?.reps} reps
-      </Sets>
-      <Flex>
-        <Details>
-          <FitnessCenterRounded sx={{ fontSize: "20px" }} />
+    <div className="flex-1 min-w-[250px] max-w-[400px] p-4 md:p-5 bg-white border border-neutral-200 rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col gap-2">
+      <div className="w-fit text-sm text-primary font-semibold bg-primary/10 px-2.5 py-1 rounded-md mb-1">
+        #{workout?.category}
+      </div>
+      <div className="text-xl text-neutral-800 font-bold leading-tight uppercase tracking-tight">
+        {workout?.workoutName}
+      </div>
+      <div className="text-sm font-medium text-neutral-500">
+        Sets: {workout?.sets} × {workout?.reps} reps
+      </div>
+      <div className="flex gap-4 mt-2 border-t border-neutral-100 pt-3">
+        <div className="text-sm font-bold text-neutral-800 flex items-center gap-1.5">
+          <FitnessCenterRounded className="text-primary" sx={{ fontSize: "18px" }} />
           {workout?.weight} kg
-        </Details>
-        <Details>
-          <TimelapseRounded sx={{ fontSize: "20px" }} />
+        </div>
+        <div className="text-sm font-bold text-neutral-800 flex items-center gap-1.5">
+          <TimelapseRounded className="text-secondary" sx={{ fontSize: "18px" }} />
           {workout?.duration} min
-        </Details>
-      </Flex>
-    </Card>
+        </div>
+      </div>
+    </div>
   );
 };
 

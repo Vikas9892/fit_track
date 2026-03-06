@@ -1,94 +1,7 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { getTutorials } from "../api";
 import Button from "../components/Button";
-
-const CategoryTag = styled.div`
-  display: inline-block;
-  background-color: ${({ theme }) => theme.primary};
-  color: white;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  margin-bottom: 12px;
-`;
-
-const Container = styled.div`
-  flex: 1;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  padding: 22px 0px;
-  overflow-y: scroll;
-`;
-const Wrapper = styled.div`
-  flex: 1;
-  max-width: 1400px;
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-  @media (max-width: 600px) {
-    gap: 12px;
-  }
-`;
-const Title = styled.div`
-  padding: 0px 16px;
-  font-size: 22px;
-  color: ${({ theme }) => theme.text_primary};
-  font-weight: 500;
-`;
-const CardWrapper = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 100px;
-  @media (max-width: 600px) {
-    gap: 12px;
-  }
-`;
-const Card = styled.div`
-  flex: 1;
-  min-width: 280px;
-  padding: 24px;
-  border: 1px solid ${({ theme }) => theme.text_primary + 20};
-  border-radius: 14px;
-  box-shadow: 1px 6px 20px 0px ${({ theme }) => theme.primary + 15};
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  transition: all 0.3s ease;
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 1px 10px 30px 0px ${({ theme }) => theme.primary + 20};
-  }
-  @media (max-width: 600px) {
-    padding: 16px;
-  }
-`;
-const TutorialTitle = styled.div`
-  font-weight: 600;
-  font-size: 18px;
-  color: ${({ theme }) => theme.primary};
-  line-height: 1.4;
-`;
-const TutorialLink = styled.a`
-  color: ${({ theme }) => theme.text_secondary};
-  text-decoration: none;
-  font-size: 14px;
-  &:hover {
-    text-decoration: underline;
-    color: ${({ theme }) => theme.primary};
-  }
-`;
-const Thumbnail = styled.img`
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-radius: 8px;
-`;
 
 const Tutorials = () => {
   const currentUser = useSelector((state) => state.user.currentUser);
@@ -97,14 +10,6 @@ const Tutorials = () => {
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [allCategories, setAllCategories] = useState([]);
-
-  // Clear tutorials when user changes
-  useEffect(() => {
-    setTutorials([]);
-    setFilteredTutorials([]);
-    setSelectedCategory("");
-    setAllCategories([]);
-  }, [currentUser?.id]);
 
   const getTutorialsData = async () => {
     setLoading(true);
@@ -121,8 +26,7 @@ const Tutorials = () => {
       filterTutorials(res.data, categoryToUse || "");
       setLoading(false);
     }).catch((err) => {
-      console.log(err);
-      alert("Error loading tutorials");
+      console.error(err);
       setLoading(false);
     });
   };
@@ -141,32 +45,16 @@ const Tutorials = () => {
   };
 
   useEffect(() => {
-    getTutorialsData();
-  }, [currentUser?.id]);
+    if (currentUser) {
+      getTutorialsData();
+    }
+  }, [currentUser]);
 
   return (
-    <Container>
-      <Wrapper>
-        <Title>Tutorials</Title>
-        {allCategories.length > 0 && (
-          <div style={{ padding: "0px 16px", display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
-            <span style={{ fontSize: "14px", fontWeight: "500" }}>Category:</span>
-            {allCategories.map((cat) => (
-              <CategoryTag
-                key={cat}
-                onClick={() => handleCategoryChange(cat)}
-                style={{
-                  cursor: "pointer",
-                  opacity: selectedCategory === cat ? 1 : 0.6,
-                  border: selectedCategory === cat ? "2px solid white" : "none",
-                }}
-              >
-                {cat}
-              </CategoryTag>
-            ))}
-          </div>
-        )}
-        <div style={{ padding: "0px 16px" }}>
+    <div className="flex-1 min-h-screen flex justify-center py-6 px-4 bg-neutral-50 overflow-y-auto">
+      <div className="flex-1 max-w-[1400px] flex flex-col gap-6">
+        <div className="flex items-center justify-between px-1">
+          <h1 className="text-xl md:text-2xl font-semibold text-neutral-800">Suggested Tutorials</h1>
           <Button
             text="Refresh"
             onClick={getTutorialsData}
@@ -174,26 +62,68 @@ const Tutorials = () => {
             small
           />
         </div>
-        <CardWrapper>
+
+        {allCategories.length > 0 && (
+          <div className="flex flex-wrap items-center gap-3 px-1">
+            <span className="text-sm font-semibold text-neutral-600">Filters:</span>
+            {allCategories.map((cat) => (
+              <div
+                key={cat}
+                onClick={() => handleCategoryChange(cat)}
+                className={`
+                  px-4 py-1.5 rounded-full text-xs font-semibold cursor-pointer transition-all duration-300
+                  ${selectedCategory === cat 
+                    ? "bg-primary text-white shadow-md ring-2 ring-primary/20" 
+                    : "bg-white text-neutral-600 border border-neutral-200 hover:border-primary/50"}
+                `}
+              >
+                {cat}
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-1 pb-20">
           {filteredTutorials.length > 0 ? (
             filteredTutorials.map((tutorial) => (
-              <Card key={tutorial._id}>
-                {tutorial.thumbnail && <Thumbnail src={tutorial.thumbnail} alt={tutorial.title} />}
-                <TutorialTitle>{tutorial.title}</TutorialTitle>
-                <TutorialLink href={tutorial.url} target="_blank" rel="noopener noreferrer">
-                  Watch on YouTube
-                </TutorialLink>
-              </Card>
+              <div 
+                key={tutorial._id}
+                className="bg-white rounded-xl border border-neutral-200 p-5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col gap-4 group"
+              >
+                {tutorial.thumbnail && (
+                  <div className="overflow-hidden rounded-lg">
+                    <img 
+                      src={tutorial.thumbnail} 
+                      alt={tutorial.title} 
+                      className="w-full h-44 object-cover" 
+                    />
+                  </div>
+                )}
+                <div className="inline-block w-fit px-2.5 py-1 rounded bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider">
+                  {tutorial.category}
+                </div>
+                <h3 className="font-bold text-lg text-neutral-800 line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+                  {tutorial.title}
+                </h3>
+                <a 
+                  href={tutorial.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="mt-auto text-sm font-semibold text-secondary hover:text-primary transition-colors"
+                >
+                  Watch Video →
+                </a>
+              </div>
             ))
           ) : (
-            <div style={{ padding: "20px", textAlign: "center", color: "#999" }}>
-              No tutorials available for this category
+            <div className="col-span-full py-32 text-center text-neutral-400 border border-dashed border-neutral-300 rounded-xl bg-white">
+              No tutorials available for this category yet.
             </div>
           )}
-        </CardWrapper>
-      </Wrapper>
-    </Container>
+        </div>
+      </div>
+    </div>
   );
-}
+};
 
 export default Tutorials;

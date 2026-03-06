@@ -281,13 +281,12 @@ export const addWorkout = async (req, res, next) => {
     // Get unique categories
     const uniqueCategories = [...new Set(parsedWorkouts.map(w => w.category))];
 
-    // Delete existing tutorials and blogs for the user
-    await Tutorial.deleteMany({ user: userId });
-    await Blog.deleteMany({ user: userId });
-
-    // Add tutorials and blogs for each category
+    // Add tutorials and blogs for each category if they don't already exist
     for (const category of uniqueCategories) {
-      await addTutorialsAndBlogs(category, userId);
+      const existingTut = await Tutorial.findOne({ user: userId, category: category });
+      if (!existingTut) {
+        await addTutorialsAndBlogs(category, userId);
+      }
     }
 
     return res.status(201).json({
@@ -343,15 +342,31 @@ const calculateCaloriesBurnt = (workoutDetails) => {
 // Function to parse workout details from a line
 const parseWorkoutLine = (parts) => {
   const details = {};
-  if (parts.length >= 4) {
-    details.workoutName = parts[0].substring(1).trim();
-    details.sets = parseInt(parts[1].split("sets")[0].substring(1).trim());
-    details.reps = parseInt(
-      parts[1].split("sets")[1].split("reps")[0].substring(1).trim()
-    );
-    details.weight = parseFloat(parts[2].split("kg")[0].substring(1).trim());
-    details.duration = parseFloat(parts[3].split("min")[0].substring(1).trim());
-    return details;
+  try {
+    // Expecting: Name, Sets & Reps, Weight, Duration
+    // If parts are separated by lines, we need to handle that.
+    
+    // Join parts and then split to find values if they are on separate lines
+    const content = parts.join(" ").toLowerCase();
+    
+    // Extracts name (assuming it's on the first line or before first keyword)
+    details.workoutName = parts[0].replace(/^-/, "").trim();
+    
+    // Regular expressions to extract values
+    const setsMatch = content.match(/(\d+)\s*sets/);
+    const repsMatch = content.match(/(\d+)\s*reps/);
+    const weightMatch = content.match(/(\d+\.?\d*)\s*kg/);
+    const durationMatch = content.match(/(\d+\.?\d*)\s*min/);
+    
+    if (setsMatch && repsMatch && weightMatch && durationMatch) {
+      details.sets = parseInt(setsMatch[1]);
+      details.reps = parseInt(repsMatch[1]);
+      details.weight = parseFloat(weightMatch[1]);
+      details.duration = parseFloat(durationMatch[1]);
+      return details;
+    }
+  } catch (err) {
+    console.error("Parse error:", err);
   }
   return null;
 };

@@ -1,73 +1,7 @@
 import { CircularProgress } from "@mui/material";
 import React from "react";
-import styled from "styled-components";
 
-const Button = styled.div`
-  border-radius: 10px;
-  color: white;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  height: min-content;
-  padding: 16px 26px;
-  box-shadow: 1px 20px 35px 0px ${({ theme }) => theme.primary + 40};
-  border: 1px solid ${({ theme }) => theme.primary};
-  @media (max-width: 600px) {
-    padding: 8px 12px;
-  }
-
-  ${({ type, theme }) =>
-    type === "secondary"
-      ? `
-  background: ${theme.secondary};
-border: 1px solid ${({ theme }) => theme.secondary};
-  `
-      : `
-  background: ${theme.primary};
-`}
-
-  ${({ isDisabled }) =>
-    isDisabled &&
-    `
-  opacity: 0.8;
-  cursor: not-allowed;
-
-  `}
-  ${({ isLoading }) =>
-    isLoading &&
-    `
-    opacity: 0.8;
-  cursor: not-allowed;
-`}
-${({ flex }) =>
-    flex &&
-    `
-    flex: 1;
-`}
-
-${({ small }) =>
-    small &&
-    `
-padding: 10px 28px;
-`}
-  ${({ outlined, theme }) =>
-    outlined &&
-    `
-background: transparent;
-color: ${theme.primary};
-  box-shadow: none;
-`}
-  ${({ full }) =>
-    full &&
-    `
-  width: 100%;`}
-`;
-
-const button = ({
+const Button = ({
   text,
   isLoading,
   isDisabled,
@@ -80,28 +14,38 @@ const button = ({
   outlined,
   full,
 }) => {
+  const isActionDisabled = isDisabled || isLoading;
+
+  const baseClasses = `
+    rounded-xl flex items-center justify-center gap-2 transition-all duration-300 font-medium text-sm cursor-pointer
+    ${full ? "w-full" : "w-fit"}
+    ${flex ? "flex-1" : ""}
+    ${small ? "px-7 py-2.5" : "px-7 py-4 md:px-3 md:py-2 lg:px-7 lg:py-4"}
+    ${isActionDisabled ? "opacity-80 cursor-not-allowed" : "hover:shadow-lg active:scale-95"}
+  `;
+
+  const typeClasses = outlined
+    ? "bg-transparent text-primary border border-primary shadow-none"
+    : type === "secondary"
+    ? "bg-secondary text-white border border-secondary shadow-[1px_20px_35px_0px_rgba(91,134,229,0.2)]"
+    : "bg-primary text-white border border-primary shadow-[1px_20px_35px_0px_rgba(0,122,255,0.2)]";
+
   return (
-    <Button
-      onClick={() => !isDisabled && !isLoading && onClick()}
-      isDisabled={isDisabled}
-      type={type}
-      isLoading={isLoading}
-      flex={flex}
-      small={small}
-      outlined={outlined}
-      full={full}
+    <div
+      onClick={() => !isActionDisabled && onClick && onClick()}
+      className={`${baseClasses} ${typeClasses}`}
     >
       {isLoading && (
         <CircularProgress
-          style={{ width: "18px", height: "18px", color: "inherit" }}
+          size={18}
+          color="inherit"
         />
       )}
       {leftIcon}
-      {text}
-      {isLoading && <> . . .</>}
+      <span>{text}{isLoading && " . . ."}</span>
       {rightIcon}
-    </Button>
+    </div>
   );
 };
 
-export default button;
+export default Button;

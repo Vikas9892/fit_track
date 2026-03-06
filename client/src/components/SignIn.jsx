@@ -1,28 +1,9 @@
 import React, { useState } from "react";
-import styled from "styled-components";
 import TextInput from "./TextInput";
 import Button from "./Button";
 import { UserSignIn } from "../api";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../redux/reducers/userSlice";
-
-const Container = styled.div`
-  width: 100%;
-  max-width: 500px;
-  display: flex;
-  flex-direction: column;
-  gap: 36px;
-`;
-const Title = styled.div`
-  font-size: 30px;
-  font-weight: 800;
-  color: ${({ theme }) => theme.text_primary};
-`;
-const Span = styled.div`
-  font-size: 16px;
-  font-weight: 400;
-  color: ${({ theme }) => theme.text_secondary + 90};
-`;
 
 const SignIn = () => {
   const dispatch = useDispatch();
@@ -59,18 +40,12 @@ const SignIn = () => {
   };
 
   return (
-    <Container>
+    <div className="w-full max-w-[500px] flex flex-col gap-9">
       <div>
-        <Title>Welcome to Fittrack 👋</Title>
-        <Span>Please login with your details here</Span>
+        <h1 className="text-3xl font-extrabold text-neutral-800">Welcome to Fittrack 👋</h1>
+        <p className="text-base font-normal text-neutral-500 mt-1">Please login with your details here</p>
       </div>
-      <div
-        style={{
-          display: "flex",
-          gap: "20px",
-          flexDirection: "column",
-        }}
-      >
+      <div className="flex flex-col gap-5">
         <TextInput
           label="Email Address"
           placeholder="Enter your email address"
@@ -89,9 +64,10 @@ const SignIn = () => {
           onClick={handelSignIn}
           isLoading={loading}
           isDisabled={buttonDisabled}
+          full
         />
       </div>
-    </Container>
+    </div>
   );
 };
 

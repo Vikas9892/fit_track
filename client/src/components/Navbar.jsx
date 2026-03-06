@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import styled from "styled-components";
 import LogoImg from "../utils/Images/Logo.png";
 import { Link as LinkR, NavLink } from "react-router-dom";
 import { MenuRounded } from "@mui/icons-material";
@@ -7,163 +6,64 @@ import { Avatar } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { logout } from "../redux/reducers/userSlice";
 
-const Nav = styled.div`
-  background-color: ${({ theme }) => theme.bg};
-  height: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  color: white;
-  border-bottom: 1px solid ${({ theme }) => theme.text_secondary + 20};
-`;
-const NavContainer = styled.div`
-  width: 100%;
-  max-width: 1400px;
-  padding: 0 24px;
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 1rem;
-`;
-const NavLogo = styled(LinkR)`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 0 6px;
-  font-weight: 600;
-  font-size: 18px;
-  text-decoration: none;
-  color: ${({ theme }) => theme.black};
-`;
-const Logo = styled.img`
-  height: 42px;
-`;
-const Mobileicon = styled.div`
-  color: ${({ theme }) => theme.text_primary};
-  display: none;
-  @media screen and (max-width: 768px) {
-    display: flex;
-    align-items: center;
-  }
-`;
-
-const NavItems = styled.ul`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 32px;
-  padding: 0 6px;
-  list-style: none;
-
-  @media screen and (max-width: 768px) {
-    display: none;
-  }
-`;
-const Navlink = styled(NavLink)`
-  display: flex;
-  align-items: center;
-  color: ${({ theme }) => theme.text_primary};
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 1s slide-in;
-  text-decoration: none;
-  &:hover {
-    color: ${({ theme }) => theme.primary};
-  }
-  &.active {
-    color: ${({ theme }) => theme.primary};
-    border-bottom: 1.8px solid ${({ theme }) => theme.primary};
-  }
-`;
-
-const UserContainer = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: flex-end;
-  gap: 16px;
-  align-items: center;
-  padding: 0 6px;
-  color: ${({ theme }) => theme.primary};
-`;
-const TextButton = styled.div`
-  text-align: end;
-  color: ${({ theme }) => theme.secondary};
-  cursor: pointer;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  font-weight: 600;
-  &:hover {
-    color: ${({ theme }) => theme.primary};
-  }
-`;
-
-const MobileMenu = styled.ul`
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  gap: 16px;
-  padding: 0 6px;
-  list-style: none;
-  width: 90%;
-  padding: 12px 40px 24px 40px;
-  background: ${({ theme }) => theme.bg};
-  position: absolute;
-  top: 80px;
-  right: 0;
-  transition: all 0.6s ease-in-out;
-  transform: ${({ isOpen }) =>
-    isOpen ? "translateY(0)" : "translateY(-100%)"};
-  border-radius: 0 0 20px 20px;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
-  opacity: ${({ isOpen }) => (isOpen ? "100%" : "0")};
-  z-index: ${({ isOpen }) => (isOpen ? "1000" : "-1000")};
-`;
-
 const Navbar = ({ currentUser }) => {
   const dispatch = useDispatch();
   const [isOpen, setisOpen] = useState(false);
+
+  const activeLinkClass = "text-primary border-b-[1.8px] border-primary";
+  const normalLinkClass = "text-neutral-700 hover:text-primary transition-all duration-300";
+
   return (
-    <Nav>
-      <NavContainer>
-        <Mobileicon onClick={() => setisOpen(!isOpen)}>
-          <MenuRounded sx={{ color: "inherit" }} />
-        </Mobileicon>
-        <NavLogo to="/">
-          <Logo src={LogoImg} />
-          Fittrack
-        </NavLogo>
+    <nav className="bg-white h-20 flex items-center justify-center sticky top-0 z-50 border-b border-neutral-200">
+      <div className="w-full max-w-[1400px] px-6 flex items-center justify-between gap-4">
+        {/* Mobile Icon */}
+        <div 
+          className="md:hidden flex items-center cursor-pointer text-neutral-800"
+          onClick={() => setisOpen(!isOpen)}
+        >
+          <MenuRounded />
+        </div>
 
-        <MobileMenu isOpen={isOpen}>
-          <Navlink to="/">Dashboard</Navlink>
-          <Navlink to="/workouts">Workouts</Navlink>
-          <Navlink to="/tutorials">Tutorials</Navlink>
-          <Navlink to="/blogs">Blogs</Navlink>
-          <Navlink to="/contact">Contact</Navlink>
-        </MobileMenu>
+        {/* Logo */}
+        <LinkR to="/" className="flex items-center gap-4 font-semibold text-lg no-underline text-black">
+          <img src={LogoImg} alt="Logo" className="h-10" />
+          <span>Fittrack</span>
+        </LinkR>
 
-        <NavItems>
-          <Navlink to="/">Dashboard</Navlink>
-          <Navlink to="/workouts">Workouts</Navlink>
-          <Navlink to="/tutorials">Tutorials</Navlink>
-          <Navlink to="/blogs">Blogs</Navlink>
-          <Navlink to="/contact">Contact</Navlink>
-        </NavItems>
+        {/* Mobile Menu */}
+        <ul className={`md:hidden flex flex-col items-start gap-4 list-none absolute top-20 right-0 w-[90%] p-6 py-8 bg-white rounded-b-2xl shadow-lg transition-all duration-500 ease-in-out z-[1000] ${
+          isOpen ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
+        }`}>
+          <li><NavLink to="/" onClick={() => setisOpen(false)} className={({ isActive }) => `block text-base font-medium ${isActive ? activeLinkClass : normalLinkClass}`}>Dashboard</NavLink></li>
+          <li><NavLink to="/workouts" onClick={() => setisOpen(false)} className={({ isActive }) => `block text-base font-medium ${isActive ? activeLinkClass : normalLinkClass}`}>Workouts</NavLink></li>
+          <li><NavLink to="/tutorials" onClick={() => setisOpen(false)} className={({ isActive }) => `block text-base font-medium ${isActive ? activeLinkClass : normalLinkClass}`}>Tutorials</NavLink></li>
+          <li><NavLink to="/blogs" onClick={() => setisOpen(false)} className={({ isActive }) => `block text-base font-medium ${isActive ? activeLinkClass : normalLinkClass}`}>Blogs</NavLink></li>
+          <li><NavLink to="/contact" onClick={() => setisOpen(false)} className={({ isActive }) => `block text-base font-medium ${isActive ? activeLinkClass : normalLinkClass}`}>Contact</NavLink></li>
+        </ul>
 
-        <UserContainer>
-          <Avatar src={currentUser?.img}>{currentUser?.name[0]}</Avatar>
-          <TextButton onClick={() => dispatch(logout())}>Logout</TextButton>
-        </UserContainer>
-      </NavContainer>
-    </Nav>
+        {/* Desktop Menu */}
+        <ul className="hidden md:flex items-center justify-center gap-8 list-none px-2">
+          <li><NavLink to="/" className={({ isActive }) => `text-base font-medium ${isActive ? activeLinkClass : normalLinkClass}`}>Dashboard</NavLink></li>
+          <li><NavLink to="/workouts" className={({ isActive }) => `text-base font-medium ${isActive ? activeLinkClass : normalLinkClass}`}>Workouts</NavLink></li>
+          <li><NavLink to="/tutorials" className={({ isActive }) => `text-base font-medium ${isActive ? activeLinkClass : normalLinkClass}`}>Tutorials</NavLink></li>
+          <li><NavLink to="/blogs" className={({ isActive }) => `text-base font-medium ${isActive ? activeLinkClass : normalLinkClass}`}>Blogs</NavLink></li>
+          <li><NavLink to="/contact" className={({ isActive }) => `text-base font-medium ${isActive ? activeLinkClass : normalLinkClass}`}>Contact</NavLink></li>
+        </ul>
+
+        {/* User Profile */}
+        <div className="flex items-center justify-end gap-4 px-2">
+          <Avatar src={currentUser?.img}>{currentUser?.name?.[0]}</Avatar>
+          <div 
+            onClick={() => dispatch(logout())}
+            className="text-secondary hover:text-primary cursor-pointer font-semibold transition-all duration-300"
+          >
+            Logout
+          </div>
+        </div>
+      </div>
+    </nav>
   );
 };
+
 
 export default Navbar;
