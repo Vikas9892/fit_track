@@ -1,76 +1,11 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
-import { useSelector } from "react-redux";
-import WorkoutCard from "../components/cards/WorkoutCard";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DateCalendar } from "@mui/x-date-pickers";
+import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { getWorkouts } from "../api";
+import { useSelector } from "react-redux";
+import WorkoutCard from "../components/cards/WorkoutCard";
 import { CircularProgress } from "@mui/material";
-
-const Container = styled.div`
-  flex: 1;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  padding: 22px 0px;
-  overflow-y: scroll;
-`;
-const Wrapper = styled.div`
-  flex: 1;
-  max-width: 1600px;
-  display: flex;
-  gap: 22px;
-  padding: 0px 16px;
-  @media (max-width: 600px) {
-    gap: 12px;
-    flex-direction: column;
-  }
-`;
-const Left = styled.div`
-  flex: 0.2;
-  height: fit-content;
-  padding: 18px;
-  border: 1px solid ${({ theme }) => theme.text_primary + 20};
-  border-radius: 14px;
-  box-shadow: 1px 6px 20px 0px ${({ theme }) => theme.primary + 15};
-`;
-const Title = styled.div`
-  font-weight: 600;
-  font-size: 16px;
-  color: ${({ theme }) => theme.primary};
-  @media (max-width: 600px) {
-    font-size: 14px;
-  }
-`;
-const Right = styled.div`
-  flex: 1;
-`;
-const CardWrapper = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 100px;
-  @media (max-width: 600px) {
-    gap: 12px;
-  }
-`;
-const Section = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 0px 16px;
-  gap: 22px;
-  padding: 0px 16px;
-  @media (max-width: 600px) {
-    gap: 12px;
-  }
-`;
-const SecTitle = styled.div`
-  font-size: 22px;
-  color: ${({ theme }) => theme.text_primary};
-  font-weight: 500;
-`;
 
 const Workouts = () => {
   const currentUser = useSelector((state) => state.user.currentUser);
@@ -78,52 +13,69 @@ const Workouts = () => {
   const [loading, setLoading] = useState(false);
   const [date, setDate] = useState("");
 
-  // Clear workouts when user changes
-  useEffect(() => {
-    setTodaysWorkouts([]);
-    setDate("");
-  }, [currentUser?.id]);
-
   const getTodaysWorkout = async () => {
     setLoading(true);
     const token = localStorage.getItem("fittrack-app-token");
-    await getWorkouts(token, date ? `?date=${date}` : "").then((res) => {
-      setTodaysWorkouts(res?.data?.todaysWorkouts);
-      console.log(res.data);
+    const dateQuery = date ? `?date=${date}` : "";
+    await getWorkouts(token, dateQuery).then((res) => {
+      setTodaysWorkouts(res?.data?.todaysWorkouts || []);
+      setLoading(false);
+    }).catch(err => {
+      console.error(err);
       setLoading(false);
     });
   };
 
   useEffect(() => {
-    getTodaysWorkout();
-  }, [date, currentUser?.id]);
+    if (currentUser) {
+      getTodaysWorkout();
+    }
+  }, [date, currentUser]);
+
   return (
-    <Container>
-      <Wrapper>
-        <Left>
-          <Title>Select Date</Title>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DateCalendar
-              onChange={(e) => setDate(`${e.$M + 1}/${e.$D}/${e.$y}`)}
-            />
-          </LocalizationProvider>
-        </Left>
-        <Right>
-          <Section>
-            <SecTitle>Todays Workout</SecTitle>
-            {loading ? (
+    <div className="flex-1 min-h-screen flex justify-center py-6 px-4 bg-neutral-50 overflow-y-auto">
+      <div className="flex-1 max-w-[1400px] flex flex-col md:flex-row gap-6">
+        {/* Left Side - Date Calendar */}
+        <div className="flex-1 md:max-w-xs flex flex-col gap-4">
+          <div className="bg-white p-6 rounded-2xl border border-neutral-200 shadow-sm">
+            <h2 className="text-lg font-bold text-neutral-800 mb-4 px-1">Select Date</h2>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DateCalendar
+                onChange={(e) => setDate(`${e.$M + 1}/${e.$D}/${e.$y}`)}
+                className="!w-full"
+              />
+            </LocalizationProvider>
+          </div>
+        </div>
+
+        {/* Right Side - Workouts List */}
+        <div className="flex-[3] flex flex-col gap-6 px-1">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl md:text-2xl font-semibold text-neutral-800">
+              {date ? `Workouts for ${date}` : "Today's Progress"}
+            </h2>
+          </div>
+
+          {loading ? (
+            <div className="flex items-center justify-center py-32">
               <CircularProgress />
-            ) : (
-              <CardWrapper>
-                {todaysWorkouts.map((workout) => (
-                  <WorkoutCard workout={workout} />
-                ))}
-              </CardWrapper>
-            )}
-          </Section>
-        </Right>
-      </Wrapper>
-    </Container>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
+              {todaysWorkouts.length > 0 ? (
+                todaysWorkouts.map((workout) => (
+                  <WorkoutCard key={workout._id} workout={workout} />
+                ))
+              ) : (
+                <div className="col-span-full py-32 text-center text-neutral-400 border border-dashed border-neutral-300 rounded-xl bg-white">
+                  No workouts found for this date.
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 

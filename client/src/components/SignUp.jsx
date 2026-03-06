@@ -27,7 +27,7 @@ const SignUp = () => {
     if (validateInputs()) {
       await UserSignUp({ name, email, password })
         .then((res) => {
-          dispatch(loginSuccess(res.data));
+          dispatch(loginSuccess(res?.data));
           alert("Account Created Success");
           setLoading(false);
           setButtonDisabled(false);

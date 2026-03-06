@@ -26,7 +26,7 @@ const SignIn = () => {
     if (validateInputs()) {
       await UserSignIn({ email, password })
         .then((res) => {
-          dispatch(loginSuccess(res.data));
+          dispatch(loginSuccess(res?.data));
           alert("Login Success");
           setLoading(false);
           setButtonDisabled(false);
