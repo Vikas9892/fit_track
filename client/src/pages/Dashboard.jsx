@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { counts } from "../utils/data";
 import CountsCard from "../components/cards/CountsCard";
 import WeeklyStatCard from "../components/cards/WeeklyStatCard";
@@ -63,7 +65,10 @@ const CardWrapper = styled.div`
   }
 `;
 
+
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const currentUser = useSelector((state) => state.user.currentUser);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState();
   const [buttonLoading, setButtonLoading] = useState(false);
@@ -98,19 +103,39 @@ const Dashboard = () => {
     const token = localStorage.getItem("fittrack-app-token");
     await addWorkout(token, { workoutString: workout })
       .then((res) => {
+        // Store the last added workout category
+        if (res.data.workouts && res.data.workouts.length > 0) {
+          const lastCategory = res.data.workouts[res.data.workouts.length - 1].category;
+          localStorage.setItem("lastWorkoutCategory", lastCategory);
+        }
         dashboardData();
         getTodaysWorkout();
         setButtonLoading(false);
+        setWorkout("");
+        // Navigate to tutorials page to show relevant content
+        navigate("/tutorials");
       })
       .catch((err) => {
-        alert(err);
+        alert(err.response?.data?.message || err.message || "Error adding workout");
+        setButtonLoading(false);
       });
   };
+
+  // Clear data when user changes to ensure fresh data for new user
+  useEffect(() => {
+    setData(null);
+    setTodaysWorkouts([]);
+    setWorkout(`#Legs
+-Back Squat
+-5 setsX15 reps
+-30 kg
+-10 min`);
+  }, [currentUser?.id]);
 
   useEffect(() => {
     dashboardData();
     getTodaysWorkout();
-  }, []);
+  }, [currentUser?.id]);
   return (
     <Container>
       <Wrapper>

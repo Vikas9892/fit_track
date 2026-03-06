@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import { useSelector } from "react-redux";
 import WorkoutCard from "../components/cards/WorkoutCard";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar } from "@mui/x-date-pickers";
 import { getWorkouts } from "../api";
 import { CircularProgress } from "@mui/material";
-import { useDispatch } from "react-redux";
 
 const Container = styled.div`
   flex: 1;
@@ -73,10 +73,16 @@ const SecTitle = styled.div`
 `;
 
 const Workouts = () => {
-  const dispatch = useDispatch();
+  const currentUser = useSelector((state) => state.user.currentUser);
   const [todaysWorkouts, setTodaysWorkouts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [date, setDate] = useState("");
+
+  // Clear workouts when user changes
+  useEffect(() => {
+    setTodaysWorkouts([]);
+    setDate("");
+  }, [currentUser?.id]);
 
   const getTodaysWorkout = async () => {
     setLoading(true);
@@ -90,7 +96,7 @@ const Workouts = () => {
 
   useEffect(() => {
     getTodaysWorkout();
-  }, [date]);
+  }, [date, currentUser?.id]);
   return (
     <Container>
       <Wrapper>
