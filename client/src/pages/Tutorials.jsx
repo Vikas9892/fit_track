@@ -15,15 +15,15 @@ const Tutorials = () => {
     setLoading(true);
     const token = localStorage.getItem("fittrack-app-token");
     await getTutorials(token).then((res) => {
-      setTutorials(res.data);
+      setTutorials(res?.data || []);
       // Get unique categories
-      const categories = [...new Set(res.data.map((t) => t.category))];
+      const categories = [...new Set(res?.data?.map((t) => t.category) || [])];
       setAllCategories(categories);
       // Use last workout category or first available
       const lastCategory = localStorage.getItem("lastWorkoutCategory");
       const categoryToUse = lastCategory && categories.includes(lastCategory) ? lastCategory : categories[0];
       setSelectedCategory(categoryToUse || "");
-      filterTutorials(res.data, categoryToUse || "");
+      filterTutorials(res?.data || [], categoryToUse || "");
       setLoading(false);
     }).catch((err) => {
       console.error(err);

@@ -27,7 +27,7 @@ const Dashboard = () => {
     setLoading(true);
     const token = localStorage.getItem("fittrack-app-token");
     await getDashboardDetails(token).then((res) => {
-      setData(res.data);
+      setData(res?.data);
       setLoading(false);
     }).catch(err => {
       console.error(err);
@@ -47,8 +47,9 @@ const Dashboard = () => {
     const token = localStorage.getItem("fittrack-app-token");
     await addWorkout(token, { workoutString: workout })
       .then((res) => {
-        if (res.data.workouts && res.data.workouts.length > 0) {
-          const lastCategory = res.data.workouts[res.data.workouts.length - 1].category;
+        if (res?.data?.workouts && res?.data?.workouts?.length > 0) {
+          const workoutsArray = res.data.workouts;
+          const lastCategory = workoutsArray[workoutsArray.length - 1].category;
           localStorage.setItem("lastWorkoutCategory", lastCategory);
         }
         dashboardData();
