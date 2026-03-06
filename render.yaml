@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: fitnesstrack-api
+    root_dir: server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MONGODB_URL
+        value: mongodb+srv://fit_track:Vikas9140%2A@cluster0.bpfd1mt.mongodb.net/fittrack?appName=Cluster0
+      - key: JWT_SECRET
+        value: your_super_secret_jwt_key_12345!@#
+      - key: PORT
+        value: 5000
